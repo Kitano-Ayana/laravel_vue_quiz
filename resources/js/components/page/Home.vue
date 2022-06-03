@@ -9,7 +9,7 @@
               <h2 class="home-quiz__introduction-h2">
                 <img
                   class="home-quiz__introduction-h2-logo"
-                  src="images/what-is-mark.png"
+                  src="/images/what-is-mark.png"
                 />4 Answers Quizとは?
               </h2>
               <p>
@@ -22,14 +22,14 @@
               <h2 class="home-quiz__setting-h2">
                 <img
                   class="home-quiz__setting-h2-logo"
-                  src="images/directory-icon.png"
+                  src="/images/directory-icon.png"
                 />出題設定
               </h2>
-              <form action="/quiz" method="post">
+              <form>
                 <label>
                   <input
                     type="checkbox"
-                    name="categories[]"
+                    v-model="state.categories"
                     value="1"
                     checked
                   />ビジネスマナー
@@ -37,25 +37,37 @@
                 <label>
                   <input
                     type="checkbox"
-                    name="categories[]"
+                    v-model="state.categories"
                     value="2"
                   />一般常識
                 </label>
                 <label>
                   <input
                     type="checkbox"
-                    name="categories[]"
+                    v-model="state.categories"
                     value="3"
                   />就職・転職
                 </label>
                 <label>
-                  <input type="checkbox" name="categories[]" value="4" />法律
+                  <input
+                    type="checkbox"
+                    v-model="state.categories"
+                    value="4"
+                  />法律
                 </label>
                 <label>
-                  <input type="checkbox" name="categories[]" value="5" />IT
+                  <input
+                    type="checkbox"
+                    v-model="state.categories"
+                    value="5"
+                  />IT
                 </label>
                 <label>
-                  <input type="checkbox" name="categories[]" value="6" />雑学
+                  <input
+                    type="checkbox"
+                    v-model="state.categories"
+                    value="6"
+                  />雑学
                 </label>
                 <div class>
                   全項目チェック
@@ -76,7 +88,13 @@
                     OFF
                   </button>
                 </div>
-                <button type="submit" class="btn btn-primary">出題開始</button>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  @click.stop.prevent="goQuiz()"
+                >
+                  出題開始
+                </button>
                 <input type="hidden" name="_token" value />
               </form>
             </section>
@@ -84,7 +102,7 @@
               <h2 class="home-quiz__ranking-h2">
                 <img
                   class="home-quiz__ranking-h2-logo"
-                  src="images/graph-icon.png"
+                  src="/images/graph-icon.png"
                 />ランキング
               </h2>
               <div>
@@ -122,12 +140,12 @@
               <h2 class="home__notice-h2">
                 <img
                   class="home__notice-h2-logo"
-                  src="images/news-icon.png"
+                  src="/images/news-icon.png"
                 />お知らせ情報
               </h2>
-              <dl>
-                <dt>2019/08/23</dt>
-                <dd>サイトを開設しました。</dd>
+              <dl v-for="(info, index) in state.information" :key="index">
+                <dt>{{ info.created_at }}</dt>
+                <dd>{{ info.information }}</dd>
               </dl>
             </section>
           </article>
@@ -140,18 +158,36 @@
 </template>
 
 <script>
-import TheHeader from "../layout/TheHeader";
 import TheFooter from "../layout/TheFooter";
+import TheHeader from "../layout/TheHeader";
 import TheSidebar from "../layout/TheSidebar";
 import BarChart from "../module/BarChart";
+import { reactive, onMounted } from "@vue/composition-api";
 
 export default {
   components: {
-    TheHeader,
     TheFooter,
+    TheHeader,
     TheSidebar,
     BarChart,
   },
+
+  setup(props, context) {
+    const state = reactive({
+      categories: [1],
+      information: []
+    });
+
+    const goQuiz = () => {
+      const router = context.root.$router;
+      router.push("/quiz?categories=" + state.categories);
+    };
+
+    onMounted(() => {
+      context.root.$http.get("/api/information").then((response) => {
+        state.information = response.data;
+      });
+    });
+  },
 };
 </script>
-
