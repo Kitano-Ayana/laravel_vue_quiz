@@ -2574,42 +2574,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -2625,7 +2589,8 @@ __webpack_require__.r(__webpack_exports__);
   setup: function setup(props, context) {
     var state = Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_4__["reactive"])({
       categories: [1],
-      information: []
+      information: [],
+      category: []
     });
 
     var goQuiz = function goQuiz() {
@@ -2637,7 +2602,14 @@ __webpack_require__.r(__webpack_exports__);
       context.root.$http.get("/api/information").then(function (response) {
         state.information = response.data;
       });
+      context.root.$http.get("/api/category").then(function (response) {
+        state.category = response.data;
+      });
     });
+    return {
+      state: state,
+      goQuiz: goQuiz
+    };
   }
 });
 
@@ -41717,317 +41689,87 @@ var render = function () {
                 _c("section", { staticClass: "home-quiz__setting" }, [
                   _vm._m(1),
                   _vm._v(" "),
-                  _c("form", [
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "1", checked: "" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "1") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "1",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
+                  _c(
+                    "form",
+                    { attrs: { action: "/quiz", method: "post" } },
+                    [
+                      _vm._l(_vm.state.category, function (cate, index) {
+                        return _c("label", { key: index }, [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.state.categories,
+                                expression: "state.categories",
+                              },
+                            ],
+                            attrs: { type: "checkbox" },
+                            domProps: {
+                              value: cate.id,
+                              checked: Array.isArray(_vm.state.categories)
+                                ? _vm._i(_vm.state.categories, cate.id) > -1
+                                : _vm.state.categories,
+                            },
+                            on: {
+                              change: function ($event) {
+                                var $$a = _vm.state.categories,
+                                  $$el = $event.target,
+                                  $$c = $$el.checked ? true : false
+                                if (Array.isArray($$a)) {
+                                  var $$v = cate.id,
+                                    $$i = _vm._i($$a, $$v)
+                                  if ($$el.checked) {
+                                    $$i < 0 &&
+                                      _vm.$set(
+                                        _vm.state,
+                                        "categories",
+                                        $$a.concat([$$v])
+                                      )
+                                  } else {
+                                    $$i > -1 &&
+                                      _vm.$set(
+                                        _vm.state,
+                                        "categories",
+                                        $$a
+                                          .slice(0, $$i)
+                                          .concat($$a.slice($$i + 1))
+                                      )
+                                  }
+                                } else {
+                                  _vm.$set(_vm.state, "categories", $$c)
+                                }
+                              },
+                            },
+                          }),
+                          _vm._v(_vm._s(cate.name) + " \n              "),
+                        ])
                       }),
-                      _vm._v("ビジネスマナー\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
+                      _vm._v(" "),
+                      _vm._m(2),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary",
+                          attrs: { type: "submit" },
+                          on: {
+                            click: function ($event) {
+                              $event.stopPropagation()
+                              $event.preventDefault()
+                              return _vm.goQuiz()
+                            },
+                          },
+                        },
+                        [_vm._v("\n                出題開始\n              ")]
+                      ),
+                      _vm._v(" "),
                       _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "2" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "2") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "2",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
+                        attrs: { type: "hidden", name: "_token", value: "" },
                       }),
-                      _vm._v("一般常識\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "3" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "3") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "3",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
-                      }),
-                      _vm._v("就職・転職\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "4" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "4") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "4",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
-                      }),
-                      _vm._v("法律\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "5" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "5") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "5",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
-                      }),
-                      _vm._v("IT\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "6" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "6") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "6",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
-                      }),
-                      _vm._v("雑学\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _vm._m(2),
-                    _vm._v(" "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary",
-                        attrs: { type: "submit" },
-                        on: {
-                          click: function ($event) {
-                            $event.stopPropagation()
-                            $event.preventDefault()
-                            return _vm.goQuiz()
-                          },
-                        },
-                      },
-                      [_vm._v("\n                出題開始\n              ")]
-                    ),
-                    _vm._v(" "),
-                    _c("input", {
-                      attrs: { type: "hidden", name: "_token", value: "" },
-                    }),
-                  ]),
+                    ],
+                    2
+                  ),
                 ]),
                 _vm._v(" "),
                 _c("section", { staticClass: "home-quiz__ranking" }, [

@@ -5069,42 +5069,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -5120,7 +5084,8 @@ __webpack_require__.r(__webpack_exports__);
   setup: function setup(props, context) {
     var state = Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_4__["reactive"])({
       categories: [1],
-      information: []
+      information: [],
+      category: []
     });
 
     var goQuiz = function goQuiz() {
@@ -5132,7 +5097,14 @@ __webpack_require__.r(__webpack_exports__);
       context.root.$http.get("/api/information").then(function (response) {
         state.information = response.data;
       });
+      context.root.$http.get("/api/category").then(function (response) {
+        state.category = response.data;
+      });
     });
+    return {
+      state: state,
+      goQuiz: goQuiz
+    };
   }
 });
 
@@ -5147,9 +5119,10 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _layout_TheHeader__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../layout/TheHeader */ "./resources/js/components/layout/TheHeader.vue");
-/* harmony import */ var _layout_TheFooter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../layout/TheFooter */ "./resources/js/components/layout/TheFooter.vue");
+/* harmony import */ var _layout_TheFooter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../layout/TheFooter */ "./resources/js/components/layout/TheFooter.vue");
+/* harmony import */ var _layout_TheHeader__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../layout/TheHeader */ "./resources/js/components/layout/TheHeader.vue");
 /* harmony import */ var _layout_TheSidebar__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../layout/TheSidebar */ "./resources/js/components/layout/TheSidebar.vue");
+/* harmony import */ var _vue_composition_api__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @vue/composition-api */ "./node_modules/@vue/composition-api/dist/vue-composition-api.mjs");
 //
 //
 //
@@ -5235,14 +5208,128 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
-    TheHeader: _layout_TheHeader__WEBPACK_IMPORTED_MODULE_0__["default"],
-    TheFooter: _layout_TheFooter__WEBPACK_IMPORTED_MODULE_1__["default"],
+    TheFooter: _layout_TheFooter__WEBPACK_IMPORTED_MODULE_0__["default"],
+    TheHeader: _layout_TheHeader__WEBPACK_IMPORTED_MODULE_1__["default"],
     TheSidebar: _layout_TheSidebar__WEBPACK_IMPORTED_MODULE_2__["default"]
+  },
+  setup: function setup(props, context) {
+    var state = Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_3__["reactive"])({
+      quizData: [],
+      title: "",
+      imageSrc: "",
+      answers: [],
+      commentary: "",
+      correctAnswerNo: 0,
+      isCorrect: false,
+      //正解かどうか
+      isMistake: false,
+      //間違いかどうか
+      isAlreadyAnswered: false,
+      //回答済みかどうか
+      isQuizFinish: false,
+      //クイズが終了したかどうか
+      score: 0,
+      quizNumber: 1,
+      categoryName: ""
+    });
+    Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_3__["onMounted"])(function () {
+      var router = context.root.$router;
+      var categories = router.app.$route.query.categories;
+      context.root.$http.get("/api/quiz?categories=".concat(categories)).then(function (response) {
+        state.quizData = response.data;
+        findNextQuiz(0);
+        console.log(state.quizData);
+      });
+    });
+
+    var goAnswer = function goAnswer(selectAnswerNum) {
+      if (selectAnswerNum === 0) {
+        // selectAnswerNumが0の場合は、click 「正解を表示する」ボタンのクリック alert-info、alert-dangerを非表示
+        state.isCorrect = false;
+        state.isMistake = false;
+      } else if (selectAnswerNum === Number(state.correctAnswerNo)) {
+        // 正解を押した場合 alert-infoを表示し、alert-dangerを非表示にする そしてスコアを加算する
+        state.isCorrect = true;
+        state.isMistake = false;
+        state.score += 1;
+      } else {
+        // 不正解の場合 alert-infoを非表示し、alert-dangerを表示にする
+        state.isMistake = true;
+        state.isCorrect = false;
+      } // 回答済みの設定をONにする 同じ問題に２回以上の回答をさせないため、そして解説を表示するため
+
+
+      state.isAlreadyAnswered = true; // 10問以上回答している場合は、クイズを終了
+
+      if (state.quizNumber >= 10) {
+        endQuiz();
+      }
+    };
+
+    var findNextQuiz = function findNextQuiz(quizNumber) {
+      state.title = state.quizData[quizNumber].title;
+      state.answers = [state.quizData[quizNumber].answer.answer_1, state.quizData[quizNumber].answer.answer_2, state.quizData[quizNumber].answer.answer_3, state.quizData[quizNumber].answer.answer_4];
+      state.commentary = state.quizData[quizNumber].answer.commentary;
+      state.correctAnswerNo = state.quizData[quizNumber].answer.correct_answer_no;
+      state.categoryName = state.quizData[quizNumber].category.name;
+    };
+
+    var goNextQuiz = function goNextQuiz() {
+      // 次の問題へをクリック
+      if (state.quizNumber >= 10) {
+        // 10問以上の場合はクイズを終了
+        endQuiz();
+      } else {
+        // 次のクイズを表示し、クイズ番号を加算、alert-info、alert-danger、解説を非表示にする
+        findNextQuiz(state.quizNumber);
+        state.quizNumber += 1;
+        state.isCorrect = false;
+        state.isMistake = false;
+        state.isAlreadyAnswered = false;
+      }
+    };
+
+    var endQuiz = function endQuiz() {
+      state.isQuizFinish = true;
+      state.answerNo = "-";
+      state.isAlreadyAnswered = true;
+    };
+
+    return {
+      state: state,
+      findNextQuiz: findNextQuiz,
+      goAnswer: goAnswer,
+      goNextQuiz: goNextQuiz,
+      endQuiz: endQuiz
+    };
   }
 });
 
@@ -46398,317 +46485,87 @@ var render = function () {
                 _c("section", { staticClass: "home-quiz__setting" }, [
                   _vm._m(1),
                   _vm._v(" "),
-                  _c("form", [
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "1", checked: "" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "1") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "1",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
+                  _c(
+                    "form",
+                    { attrs: { action: "/quiz", method: "post" } },
+                    [
+                      _vm._l(_vm.state.category, function (cate, index) {
+                        return _c("label", { key: index }, [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.state.categories,
+                                expression: "state.categories",
+                              },
+                            ],
+                            attrs: { type: "checkbox" },
+                            domProps: {
+                              value: cate.id,
+                              checked: Array.isArray(_vm.state.categories)
+                                ? _vm._i(_vm.state.categories, cate.id) > -1
+                                : _vm.state.categories,
+                            },
+                            on: {
+                              change: function ($event) {
+                                var $$a = _vm.state.categories,
+                                  $$el = $event.target,
+                                  $$c = $$el.checked ? true : false
+                                if (Array.isArray($$a)) {
+                                  var $$v = cate.id,
+                                    $$i = _vm._i($$a, $$v)
+                                  if ($$el.checked) {
+                                    $$i < 0 &&
+                                      _vm.$set(
+                                        _vm.state,
+                                        "categories",
+                                        $$a.concat([$$v])
+                                      )
+                                  } else {
+                                    $$i > -1 &&
+                                      _vm.$set(
+                                        _vm.state,
+                                        "categories",
+                                        $$a
+                                          .slice(0, $$i)
+                                          .concat($$a.slice($$i + 1))
+                                      )
+                                  }
+                                } else {
+                                  _vm.$set(_vm.state, "categories", $$c)
+                                }
+                              },
+                            },
+                          }),
+                          _vm._v(_vm._s(cate.name) + " \n              "),
+                        ])
                       }),
-                      _vm._v("ビジネスマナー\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
+                      _vm._v(" "),
+                      _vm._m(2),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary",
+                          attrs: { type: "submit" },
+                          on: {
+                            click: function ($event) {
+                              $event.stopPropagation()
+                              $event.preventDefault()
+                              return _vm.goQuiz()
+                            },
+                          },
+                        },
+                        [_vm._v("\n                出題開始\n              ")]
+                      ),
+                      _vm._v(" "),
                       _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "2" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "2") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "2",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
+                        attrs: { type: "hidden", name: "_token", value: "" },
                       }),
-                      _vm._v("一般常識\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "3" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "3") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "3",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
-                      }),
-                      _vm._v("就職・転職\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "4" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "4") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "4",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
-                      }),
-                      _vm._v("法律\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "5" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "5") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "5",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
-                      }),
-                      _vm._v("IT\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _c("label", [
-                      _c("input", {
-                        directives: [
-                          {
-                            name: "model",
-                            rawName: "v-model",
-                            value: _vm.state.categories,
-                            expression: "state.categories",
-                          },
-                        ],
-                        attrs: { type: "checkbox", value: "6" },
-                        domProps: {
-                          checked: Array.isArray(_vm.state.categories)
-                            ? _vm._i(_vm.state.categories, "6") > -1
-                            : _vm.state.categories,
-                        },
-                        on: {
-                          change: function ($event) {
-                            var $$a = _vm.state.categories,
-                              $$el = $event.target,
-                              $$c = $$el.checked ? true : false
-                            if (Array.isArray($$a)) {
-                              var $$v = "6",
-                                $$i = _vm._i($$a, $$v)
-                              if ($$el.checked) {
-                                $$i < 0 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.concat([$$v])
-                                  )
-                              } else {
-                                $$i > -1 &&
-                                  _vm.$set(
-                                    _vm.state,
-                                    "categories",
-                                    $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                                  )
-                              }
-                            } else {
-                              _vm.$set(_vm.state, "categories", $$c)
-                            }
-                          },
-                        },
-                      }),
-                      _vm._v("雑学\n              "),
-                    ]),
-                    _vm._v(" "),
-                    _vm._m(2),
-                    _vm._v(" "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary",
-                        attrs: { type: "submit" },
-                        on: {
-                          click: function ($event) {
-                            $event.stopPropagation()
-                            $event.preventDefault()
-                            return _vm.goQuiz()
-                          },
-                        },
-                      },
-                      [_vm._v("\n                出題開始\n              ")]
-                    ),
-                    _vm._v(" "),
-                    _c("input", {
-                      attrs: { type: "hidden", name: "_token", value: "" },
-                    }),
-                  ]),
+                    ],
+                    2
+                  ),
                 ]),
                 _vm._v(" "),
                 _c("section", { staticClass: "home-quiz__ranking" }, [
@@ -46915,7 +46772,217 @@ var render = function () {
           _c(
             "div",
             { staticClass: "row" },
-            [_vm._m(0), _vm._v(" "), _c("the-sidebar")],
+            [
+              _c("article", { staticClass: "col-sm-8" }, [
+                _c("section", [
+                  _c("h2", { staticClass: "quiz-question-h2" }, [
+                    _c("img", {
+                      staticClass: "quiz-question__logo",
+                      attrs: { src: "/images/what-is-mark.png" },
+                    }),
+                    _vm._v(
+                      "\n              第" +
+                        _vm._s(_vm.state.quizNumber) +
+                        "問\n            "
+                    ),
+                  ]),
+                  _vm._v(" "),
+                  _c("p", [_vm._v(_vm._s(_vm.state.title))]),
+                  _vm._v(" "),
+                  _vm.state.imageSrc
+                    ? _c("div", [
+                        _c("img", {
+                          staticClass: "img-responsive",
+                          attrs: {
+                            id: "quiz-image",
+                            src: "/images/quiz/" + _vm.state.imageSrc,
+                          },
+                        }),
+                      ])
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "quiz-answer__list" }, [
+                    _c(
+                      "ul",
+                      _vm._l(_vm.state.answers, function (answer, index) {
+                        return _c("li", { key: index }, [
+                          _c("a", [
+                            _c(
+                              "button",
+                              {
+                                attrs: {
+                                  disabled: _vm.state.isAlreadyAnswered,
+                                },
+                                on: {
+                                  click: function ($event) {
+                                    return _vm.goAnswer(index + 1)
+                                  },
+                                },
+                              },
+                              [
+                                _vm._v(
+                                  "\n                      " +
+                                    _vm._s(index + 1) +
+                                    "\n                    "
+                                ),
+                              ]
+                            ),
+                          ]),
+                          _vm._v(
+                            "\n                  " +
+                              _vm._s(answer) +
+                              "\n                "
+                          ),
+                        ])
+                      }),
+                      0
+                    ),
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "text-right" }, [
+                    _vm._v("カテゴリー: " + _vm._s(_vm.state.categoryName)),
+                  ]),
+                ]),
+                _vm._v(" "),
+                _c("section", [
+                  _vm._m(0),
+                  _vm._v(" "),
+                  _c("p", [
+                    _c(
+                      "button",
+                      {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.state.isAlreadyAnswered,
+                            expression: "state.isAlreadyAnswered",
+                          },
+                        ],
+                        staticClass: "quiz-correct-answer",
+                        attrs: { disabled: "" },
+                      },
+                      [
+                        _vm._v(
+                          "\n                " +
+                            _vm._s(_vm.state.correctAnswerNo) +
+                            "\n              "
+                        ),
+                      ]
+                    ),
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      directives: [
+                        {
+                          name: "show",
+                          rawName: "v-show",
+                          value: !_vm.state.isAlreadyAnswered,
+                          expression: "!state.isAlreadyAnswered",
+                        },
+                      ],
+                      staticClass: "quiz-show-answer",
+                      on: {
+                        click: function ($event) {
+                          return _vm.goAnswer(0)
+                        },
+                      },
+                    },
+                    [_vm._v("\n              正解を表示する\n            ")]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      directives: [
+                        {
+                          name: "show",
+                          rawName: "v-show",
+                          value: _vm.state.isCorrect,
+                          expression: "state.isCorrect",
+                        },
+                      ],
+                      staticClass: "alert alert-info",
+                    },
+                    [_c("strong", [_vm._v("正解!")])]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      directives: [
+                        {
+                          name: "show",
+                          rawName: "v-show",
+                          value: _vm.state.isMistake,
+                          expression: "state.isMistake",
+                        },
+                      ],
+                      staticClass: "alert alert-danger",
+                    },
+                    [_c("strong", [_vm._v("不正解!")])]
+                  ),
+                ]),
+                _vm._v(" "),
+                _c("section", [
+                  _vm._m(1),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    {
+                      directives: [
+                        {
+                          name: "show",
+                          rawName: "v-show",
+                          value: _vm.state.isAlreadyAnswered,
+                          expression: "state.isAlreadyAnswered",
+                        },
+                      ],
+                      staticClass: "quiz-commentary__text",
+                    },
+                    [
+                      _vm._v(
+                        "\n              " +
+                          _vm._s(_vm.state.commentary) +
+                          "\n            "
+                      ),
+                    ]
+                  ),
+                  _vm._v(" "),
+                  !_vm.state.isQuizFinish
+                    ? _c(
+                        "button",
+                        {
+                          staticClass:
+                            "btn btn-primary d-block mx-auto quiz-next__button",
+                          attrs: { type: "button" },
+                          on: { click: _vm.goNextQuiz },
+                        },
+                        [_vm._v("\n              次の問題へ\n            ")]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.state.isQuizFinish
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "d-block mx-auto quiz-finish__button",
+                          attrs: {
+                            type: "button",
+                            "data-bs-toggle": "modal",
+                            "data-bs-target": "#modal-result",
+                          },
+                        },
+                        [_vm._v("\n              結果を見る\n            ")]
+                      )
+                    : _vm._e(),
+                ]),
+              ]),
+              _vm._v(" "),
+              _c("the-sidebar"),
+            ],
             1
           ),
         ]),
@@ -46931,139 +46998,24 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("article", { staticClass: "col-sm-8" }, [
-      _c("section", [
-        _c("h2", { staticClass: "quiz-question-h2" }, [
-          _c("img", {
-            staticClass: "quiz-question__logo",
-            attrs: { src: "/images/what-is-mark.png" },
-          }),
-          _vm._v("\n              第1問\n            "),
-        ]),
-        _vm._v(" "),
-        _c("p", [_vm._v("正しい敬語を使った表現を１つ選んでください。")]),
-        _vm._v(" "),
-        _c("div", { staticClass: "quiz-answer__list" }, [
-          _c("ul", [
-            _c("li", [
-              _c("a", [_c("button", [_vm._v("1")])]),
-              _vm._v(
-                "\n                  受付でうかがってください。\n                "
-              ),
-            ]),
-            _vm._v(" "),
-            _c("li", [
-              _c("a", [_c("button", [_vm._v("2")])]),
-              _vm._v(
-                "\n                  課長がおっしゃったように、ファイルをご覧ください。\n                "
-              ),
-            ]),
-            _vm._v(" "),
-            _c("li", [
-              _c("a", [_c("button", [_vm._v("3")])]),
-              _vm._v(
-                "\n                  部長が申されたように進めていきます。\n                "
-              ),
-            ]),
-            _vm._v(" "),
-            _c("li", [
-              _c("a", [_c("button", [_vm._v("4")])]),
-              _vm._v(
-                "\n                  ○△商事の□□様がお越しになられました。\n                "
-              ),
-            ]),
-          ]),
-        ]),
-      ]),
-      _vm._v(" "),
-      _c("section", [
-        _c("h2", { staticClass: "quiz-correct-h2" }, [
-          _c("img", {
-            staticClass: "quiz-correct__logo",
-            attrs: { src: "/images/correct-mark.png" },
-          }),
-          _vm._v("正解\n            "),
-        ]),
-        _vm._v(" "),
-        _c("p", [
-          _c("button", { staticClass: "quiz-correct-answer" }, [_vm._v("1")]),
-        ]),
-        _vm._v(" "),
-        _c("button", { staticClass: "quiz-show-answer" }, [
-          _vm._v("正解を表示する"),
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "alert alert-info" }, [
-          _c("strong", [_vm._v("正解!")]),
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "alert alert-danger" }, [
-          _c("strong", [_vm._v("不正解!")]),
-        ]),
-      ]),
-      _vm._v(" "),
-      _c("section", [
-        _c("h2", { staticClass: "quiz-commentary-h2" }, [
-          _c("img", {
-            staticClass: "quiz-commentary__logo",
-            attrs: { src: "/images/commentary-mark.png" },
-          }),
-          _vm._v("解説\n            "),
-        ]),
-        _vm._v(" "),
-        _c("div", { staticClass: "quiz-commentary" }, [
-          _vm._v("\n              1）3）4）は、どこが間違っていたの？ "),
-          _c("br"),
-          _vm._v("\n              1）受付でうかがってください。"),
-          _c("br"),
-          _vm._v(
-            "\n              「うかがう」は謙譲語。謙譲語は自分または身内（自分の会社も含みます）の者に使う言葉で、相手に使うのは間違いです。"
-          ),
-          _c("br"),
-          _vm._v("\n              『受付でお尋ねください。』が正解です。"),
-          _c("br"),
-          _c("br"),
-          _vm._v("\n              3）部長が申されたように進めていきます。"),
-          _c("br"),
-          _vm._v(
-            "\n              「申す」も謙譲語です。謙譲語にれる・られるを付けても尊敬語にはなりません。"
-          ),
-          _c("br"),
-          _vm._v(
-            "\n              『社長がおっしゃったように進めていきます。』が正解です。"
-          ),
-          _c("br"),
-          _c("br"),
-          _vm._v("\n              4）○△商事の□□様がお越しになられました。"),
-          _c("br"),
-          _vm._v(
-            "\n              「なられました」は二重敬語の典型的な表現です。"
-          ),
-          _c("br"),
-          _vm._v(
-            "\n              『○△商事の□□様がお越しになりました。』が正解です。"
-          ),
-          _c("br"),
-        ]),
-        _vm._v(" "),
-        _c(
-          "button",
-          {
-            staticClass: "btn btn-primary d-block mx-auto quiz-next__button",
-            attrs: { type: "button" },
-          },
-          [_vm._v("次の問題へ")]
-        ),
-        _vm._v(" "),
-        _c(
-          "button",
-          {
-            staticClass: "d-block mx-auto quiz-finish__button",
-            attrs: { type: "button" },
-          },
-          [_vm._v("結果を見る")]
-        ),
-      ]),
+    return _c("h2", { staticClass: "quiz-correct-h2" }, [
+      _c("img", {
+        staticClass: "quiz-correct__logo",
+        attrs: { src: "/images/correct-mark.png" },
+      }),
+      _vm._v("正解\n            "),
+    ])
+  },
+  function () {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("h2", { staticClass: "quiz-commentary-h2" }, [
+      _c("img", {
+        staticClass: "quiz-commentary__logo",
+        attrs: { src: "/images/commentary-mark.png" },
+      }),
+      _vm._v("解説\n            "),
     ])
   },
 ]

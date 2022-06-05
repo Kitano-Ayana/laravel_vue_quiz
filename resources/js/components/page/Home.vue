@@ -25,49 +25,13 @@
                   src="/images/directory-icon.png"
                 />出題設定
               </h2>
-              <form>
-                <label>
+              <form action="/quiz" method="post">
+                <label v-for="(cate, index) in state.category" :key="index">
                   <input
                     type="checkbox"
                     v-model="state.categories"
-                    value="1"
-                    checked
-                  />ビジネスマナー
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    v-model="state.categories"
-                    value="2"
-                  />一般常識
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    v-model="state.categories"
-                    value="3"
-                  />就職・転職
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    v-model="state.categories"
-                    value="4"
-                  />法律
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    v-model="state.categories"
-                    value="5"
-                  />IT
-                </label>
-                <label>
-                  <input
-                    type="checkbox"
-                    v-model="state.categories"
-                    value="6"
-                  />雑学
+                    :value="cate.id"
+                  />{{ cate.name }}&ensp;
                 </label>
                 <div class>
                   全項目チェック
@@ -175,7 +139,8 @@ export default {
   setup(props, context) {
     const state = reactive({
       categories: [1],
-      information: []
+      information: [],
+      category: [],
     });
 
     const goQuiz = () => {
@@ -187,7 +152,17 @@ export default {
       context.root.$http.get("/api/information").then((response) => {
         state.information = response.data;
       });
+
+      context.root.$http.get("/api/category").then((response) => {
+        state.category = response.data;
+      });
     });
+
+    return {
+      state,
+      goQuiz,
+    };
   },
 };
 </script>
+
