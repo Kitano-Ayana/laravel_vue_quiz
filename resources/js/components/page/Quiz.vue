@@ -1,6 +1,6 @@
 <template>
   <div>
-  <the-header></the-header>
+    <the-header></the-header>
     <main>
       <div class="container">
         <div class="row">
@@ -54,7 +54,11 @@
                   {{ state.correctAnswerNo }}
                 </button>
               </p>
-              <button class="quiz-show-answer" @click="goAnswer(0)" v-show="!state.isAlreadyAnswered">
+              <button
+                class="quiz-show-answer"
+                @click="goAnswer(0)"
+                v-show="!state.isAlreadyAnswered"
+              >
                 正解を表示する
               </button>
               <div class="alert alert-info" v-show="state.isCorrect">
@@ -94,7 +98,6 @@
               >
                 結果を見る
               </button>
-
             </section>
           </article>
           <the-sidebar></the-sidebar>
@@ -102,6 +105,11 @@
       </div>
     </main>
     <the-footer></the-footer>
+
+    <the-modal
+      :correctPercentageObject="state.correctPercentageObject"
+      ref="modal"
+    ></the-modal>
   </div>
 </template>
 
@@ -109,6 +117,7 @@
 import TheFooter from "../layout/TheFooter";
 import TheHeader from "../layout/TheHeader";
 import TheSidebar from "../layout/TheSidebar";
+import TheModal from "../module/TheModal";
 import { reactive, onMounted } from "@vue/composition-api";
 
 export default {
@@ -116,6 +125,7 @@ export default {
     TheFooter,
     TheHeader,
     TheSidebar,
+    TheModal,
   },
 
   setup(props, context) {
@@ -133,6 +143,7 @@ export default {
       score: 0,
       quizNumber: 1,
       categoryName: "",
+      correctPercentageObject: {},
     });
 
     onMounted(() => {
@@ -164,7 +175,7 @@ export default {
       }
       // 回答済みの設定をONにする 同じ問題に２回以上の回答をさせないため、そして解説を表示するため
       state.isAlreadyAnswered = true;
-      
+
       // 10問以上回答している場合は、クイズを終了
       if (state.quizNumber >= 10) {
         endQuiz();
@@ -203,6 +214,15 @@ export default {
       state.isQuizFinish = true;
       state.answerNo = "-";
       state.isAlreadyAnswered = true;
+
+      state.correctPercentageObject = {
+        correctScore: state.score,
+        mistakeScore: 10 - state.score,
+      };
+    };
+
+    const showResult = () => {
+      context.refs.modal.render();
     };
 
     return {
@@ -211,7 +231,9 @@ export default {
       goAnswer,
       goNextQuiz,
       endQuiz,
+      showResult,
     };
   },
 };
 </script>
+

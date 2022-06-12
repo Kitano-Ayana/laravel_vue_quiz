@@ -21,7 +21,7 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
-        　justify-content-end" id="navbarSupportedContent">
+        　<justify-content-end" id="navbarSupportedContent">
           <ul class="navbar-nav mr-auto"></ul>
 
           <ul class="navbar-nav">
