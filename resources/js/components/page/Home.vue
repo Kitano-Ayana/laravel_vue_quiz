@@ -1,6 +1,5 @@
 <template>
   <div>
-    <the-header></the-header>
     <main>
       <div class="container">
         <div class="row">
@@ -117,21 +116,16 @@
         </div>
       </div>
     </main>
-    <the-footer></the-footer>
   </div>
 </template>
 
 <script>
-import TheFooter from "../layout/TheFooter";
-import TheHeader from "../layout/TheHeader";
 import TheSidebar from "../layout/TheSidebar";
 import BarChart from "../module/BarChart";
 import { reactive, onMounted } from "@vue/composition-api";
 
 export default {
   components: {
-    TheFooter,
-    TheHeader,
     TheSidebar,
     BarChart,
   },

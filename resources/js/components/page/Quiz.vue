@@ -1,6 +1,5 @@
 <template>
   <div>
-    <the-header></the-header>
     <main>
       <div class="container">
         <div class="row">
@@ -104,7 +103,6 @@
         </div>
       </div>
     </main>
-    <the-footer></the-footer>
 
     <the-modal
       :correctPercentageObject="state.correctPercentageObject"
@@ -114,16 +112,12 @@
 </template>
 
 <script>
-import TheFooter from "../layout/TheFooter";
-import TheHeader from "../layout/TheHeader";
 import TheSidebar from "../layout/TheSidebar";
 import TheModal from "../module/TheModal";
 import { reactive, onMounted } from "@vue/composition-api";
 
 export default {
   components: {
-    TheFooter,
-    TheHeader,
     TheSidebar,
     TheModal,
   },
