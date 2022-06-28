@@ -15,7 +15,7 @@
   <body>
     <body>
       <div id="app">
-      <app :errors="{{ $errors }}"/>
+      <app :errors="{{ $errors }}" :auth="{{ Auth::user() ?? '[]' }}"/>
       </div>
       <script src="/js/app.js"></script>
   </body>
