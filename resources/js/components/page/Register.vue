@@ -6,6 +6,14 @@
           <div class="col-md-8 offset-md-2">
             <div class="card card-default">
               <div class="card-header text-center">ユーザー登録</div>
+              <div class="form-group has-error" v-if="errors.length !== 0">
+                <div class="alert alert-danger text-center">
+                  ユーザー登録実行時にエラーが発生しました
+                  <div v-for="(error, key, index) in errors" :key="index">
+                    {{ error }}
+                  </div>
+                </div>
+              </div>
 
               <div class="card-body">
                 <ValidationObserver
@@ -186,6 +194,11 @@ export default {
     ValidationObserver,
   },
 
+ props: {
+    errors: {
+      type: Array | Object,
+    },
+  },
   setup(props, context) {
     const state = reactive({
       name: "",

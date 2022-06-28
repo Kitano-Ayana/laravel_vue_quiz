@@ -8454,10 +8454,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  name: 'app',
+  name: "app",
   components: {
     TheHeader: _layout_TheHeader__WEBPACK_IMPORTED_MODULE_0__["default"],
     TheFooter: _layout_TheFooter__WEBPACK_IMPORTED_MODULE_1__["default"]
+  },
+  props: {
+    errors: {
+      type: Object | Array
+    }
   }
 });
 
@@ -8883,6 +8888,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -8905,6 +8918,11 @@ Object(vee_validate__WEBPACK_IMPORTED_MODULE_2__["extend"])("confirmed", _object
   components: {
     ValidationProvider: vee_validate__WEBPACK_IMPORTED_MODULE_2__["ValidationProvider"],
     ValidationObserver: vee_validate__WEBPACK_IMPORTED_MODULE_2__["ValidationObserver"]
+  },
+  props: {
+    errors: {
+      type: Array | Object
+    }
   },
   setup: function setup(props, context) {
     var state = Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_1__["reactive"])({
@@ -58917,7 +58935,7 @@ var render = function () {
     [
       _c("the-header"),
       _vm._v(" "),
-      _c("router-view"),
+      _c("router-view", { attrs: { errors: _vm.errors } }),
       _vm._v(" "),
       _c("the-footer"),
     ],
@@ -59234,6 +59252,30 @@ var render = function () {
               _c("div", { staticClass: "card-header text-center" }, [
                 _vm._v("ユーザー登録"),
               ]),
+              _vm._v(" "),
+              _vm.errors.length !== 0
+                ? _c("div", { staticClass: "form-group has-error" }, [
+                    _c(
+                      "div",
+                      { staticClass: "alert alert-danger text-center" },
+                      [
+                        _vm._v(
+                          "\n                ユーザー登録実行時にエラーが発生しました\n                "
+                        ),
+                        _vm._l(_vm.errors, function (error, key, index) {
+                          return _c("div", { key: index }, [
+                            _vm._v(
+                              "\n                  " +
+                                _vm._s(error) +
+                                "\n                "
+                            ),
+                          ])
+                        }),
+                      ],
+                      2
+                    ),
+                  ])
+                : _vm._e(),
               _vm._v(" "),
               _c(
                 "div",
