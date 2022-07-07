@@ -2413,25 +2413,25 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   "extends": vue_chartjs__WEBPACK_IMPORTED_MODULE_0__["Bar"],
-  mounted: function mounted() {
-    this.renderChart({
-      labels: ["タ・ナカ", "Suzuki", "Saito", "Moriyama", "アオキ", "村町"],
-      datasets: [{
-        label: "最高得点率",
-        backgroundColor: "rgba(0, 170, 248, 0.47)",
-        data: [100, 90, 80, 70, 60, 50]
-      }]
-    }, {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true,
-            min: 0,
-            max: 100
-          }
-        }]
-      }
-    });
+  props: {
+    chartData: {
+      type: Object
+    }
+  },
+  methods: {
+    renderBarChart: function renderBarChart() {
+      this.renderChart(this.chartData, {
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              min: 0,
+              max: 100
+            }
+          }]
+        }
+      });
+    }
   }
 });
 
@@ -2446,61 +2446,9 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _layout_TheSidebar__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../layout/TheSidebar */ "./resources/js/components/layout/TheSidebar.vue");
-/* harmony import */ var _module_BarChart__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../module/BarChart */ "./resources/js/components/module/BarChart.vue");
-/* harmony import */ var _vue_composition_api__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @vue/composition-api */ "./node_modules/@vue/composition-api/dist/vue-composition-api.mjs");
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
+/* harmony import */ var _vue_composition_api__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @vue/composition-api */ "./node_modules/@vue/composition-api/dist/vue-composition-api.mjs");
+/* harmony import */ var _layout_TheSidebar__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../layout/TheSidebar */ "./resources/js/components/layout/TheSidebar.vue");
+/* harmony import */ var _module_BarChart__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../module/BarChart */ "./resources/js/components/module/BarChart.vue");
 //
 //
 //
@@ -2575,29 +2523,70 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   components: {
-    TheSidebar: _layout_TheSidebar__WEBPACK_IMPORTED_MODULE_0__["default"],
-    BarChart: _module_BarChart__WEBPACK_IMPORTED_MODULE_1__["default"]
+    TheSidebar: _layout_TheSidebar__WEBPACK_IMPORTED_MODULE_1__["default"],
+    BarChart: _module_BarChart__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   setup: function setup(props, context) {
-    var state = Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_2__["reactive"])({
+    var state = Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_0__["reactive"])({
       categories: [1],
       information: [],
-      category: []
+      category: [],
+      rankingAlldata: {},
+      week: {},
+      month: {},
+      total: {},
+      rankingType: "1"
     });
+    Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_0__["onMounted"])(function () {
+      context.root.$http.get("/api/category").then(function (response) {
+        state.category = response.data;
+      });
+      context.root.$http.get("/api/information").then(function (response) {
+        state.information = response.data;
+      });
+      context.root.$http.get("/api/ranking").then(function (response) {
+        state.rankingAlldata = response.data;
+        setRanking();
+      });
+    });
+
+    var setRanking = function setRanking() {
+      state.week = Object.assign({}, state.week, {
+        labels: state.rankingAlldata.weekRankingData.name,
+        datasets: [{
+          label: ["最高得点率"],
+          backgroundColor: "rgba(0, 170, 248, 0.47)",
+          data: state.rankingAlldata.weekRankingData.percentage_correct_answer
+        }]
+      });
+      state.month = Object.assign({}, state.month, {
+        labels: state.rankingAlldata.monthRankingData.name,
+        datasets: [{
+          label: ["最高得点率"],
+          backgroundColor: "rgba(0, 170, 248, 0.47)",
+          data: state.rankingAlldata.monthRankingData.percentage_correct_answer
+        }]
+      });
+      state.total = Object.assign({}, state.total, {
+        labels: state.rankingAlldata.totalRankingData.name,
+        datasets: [{
+          label: ["最高得点率"],
+          backgroundColor: "rgba(0, 170, 248, 0.47)",
+          data: state.rankingAlldata.totalRankingData.percentage_correct_answer
+        }]
+      });
+      context.root.$nextTick(function () {
+        context.refs.totalChart.renderBarChart();
+        context.refs.monthChart.renderBarChart();
+        context.refs.weekChart.renderBarChart();
+      });
+    };
 
     var goQuiz = function goQuiz() {
       var router = context.root.$router;
       router.push("/quiz?categories=" + state.categories);
     };
 
-    Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_2__["onMounted"])(function () {
-      context.root.$http.get("/api/information").then(function (response) {
-        state.information = response.data;
-      });
-      context.root.$http.get("/api/category").then(function (response) {
-        state.category = response.data;
-      });
-    });
     return {
       state: state,
       goQuiz: goQuiz
@@ -41539,138 +41528,254 @@ var render = function () {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", [
-    _c("main", [
-      _c("div", { staticClass: "container" }, [
-        _c(
-          "div",
-          { staticClass: "row" },
-          [
-            _c("article", { staticClass: "col-sm-8" }, [
-              _vm._m(0),
-              _vm._v(" "),
-              _c("section", { staticClass: "home-quiz__setting" }, [
-                _vm._m(1),
+    _c(
+      "main",
+      [
+        _c("div", { staticClass: "container" }, [
+          _c(
+            "div",
+            { staticClass: "row" },
+            [
+              _c("article", { staticClass: "col-sm-8" }, [
+                _vm._m(0),
                 _vm._v(" "),
-                _c(
-                  "form",
-                  { attrs: { action: "/quiz", method: "post" } },
-                  [
-                    _vm._l(_vm.state.category, function (cate, index) {
-                      return _c("label", { key: index }, [
-                        _c("input", {
-                          directives: [
-                            {
-                              name: "model",
-                              rawName: "v-model",
-                              value: _vm.state.categories,
-                              expression: "state.categories",
+                _c("section", { staticClass: "home-quiz__setting" }, [
+                  _vm._m(1),
+                  _vm._v(" "),
+                  _c(
+                    "form",
+                    [
+                      _vm._l(_vm.state.category, function (cate, index) {
+                        return _c("label", { key: index }, [
+                          _c("input", {
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.state.categories,
+                                expression: "state.categories",
+                              },
+                            ],
+                            attrs: { type: "checkbox", checked: "" },
+                            domProps: {
+                              value: cate.id,
+                              checked: Array.isArray(_vm.state.categories)
+                                ? _vm._i(_vm.state.categories, cate.id) > -1
+                                : _vm.state.categories,
                             },
-                          ],
-                          attrs: { type: "checkbox" },
-                          domProps: {
-                            value: cate.id,
-                            checked: Array.isArray(_vm.state.categories)
-                              ? _vm._i(_vm.state.categories, cate.id) > -1
-                              : _vm.state.categories,
-                          },
-                          on: {
-                            change: function ($event) {
-                              var $$a = _vm.state.categories,
-                                $$el = $event.target,
-                                $$c = $$el.checked ? true : false
-                              if (Array.isArray($$a)) {
-                                var $$v = cate.id,
-                                  $$i = _vm._i($$a, $$v)
-                                if ($$el.checked) {
-                                  $$i < 0 &&
-                                    _vm.$set(
-                                      _vm.state,
-                                      "categories",
-                                      $$a.concat([$$v])
-                                    )
+                            on: {
+                              change: function ($event) {
+                                var $$a = _vm.state.categories,
+                                  $$el = $event.target,
+                                  $$c = $$el.checked ? true : false
+                                if (Array.isArray($$a)) {
+                                  var $$v = cate.id,
+                                    $$i = _vm._i($$a, $$v)
+                                  if ($$el.checked) {
+                                    $$i < 0 &&
+                                      _vm.$set(
+                                        _vm.state,
+                                        "categories",
+                                        $$a.concat([$$v])
+                                      )
+                                  } else {
+                                    $$i > -1 &&
+                                      _vm.$set(
+                                        _vm.state,
+                                        "categories",
+                                        $$a
+                                          .slice(0, $$i)
+                                          .concat($$a.slice($$i + 1))
+                                      )
+                                  }
                                 } else {
-                                  $$i > -1 &&
-                                    _vm.$set(
-                                      _vm.state,
-                                      "categories",
-                                      $$a
-                                        .slice(0, $$i)
-                                        .concat($$a.slice($$i + 1))
-                                    )
+                                  _vm.$set(_vm.state, "categories", $$c)
                                 }
-                              } else {
-                                _vm.$set(_vm.state, "categories", $$c)
-                              }
+                              },
                             },
-                          },
-                        }),
-                        _vm._v(_vm._s(cate.name) + " \n              "),
-                      ])
-                    }),
-                    _vm._v(" "),
-                    _vm._m(2),
-                    _vm._v(" "),
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-primary",
-                        attrs: { type: "submit" },
-                        on: {
-                          click: function ($event) {
-                            $event.stopPropagation()
-                            $event.preventDefault()
-                            return _vm.goQuiz()
+                          }),
+                          _vm._v(
+                            "\n                " +
+                              _vm._s(cate.name) +
+                              " \n              "
+                          ),
+                        ])
+                      }),
+                      _vm._v(" "),
+                      _vm._m(2),
+                      _vm._v(" "),
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-primary",
+                          attrs: { type: "submit" },
+                          on: {
+                            click: function ($event) {
+                              $event.stopPropagation()
+                              $event.preventDefault()
+                              return _vm.goQuiz()
+                            },
                           },
                         },
-                      },
-                      [_vm._v("\n                出題開始\n              ")]
-                    ),
+                        [_vm._v("出題開始")]
+                      ),
+                    ],
+                    2
+                  ),
+                ]),
+                _vm._v(" "),
+                _c("section", { staticClass: "home-quiz__ranking" }, [
+                  _vm._m(3),
+                  _vm._v(" "),
+                  _c("div", [
+                    _c("label", [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.state.rankingType,
+                            expression: "state.rankingType",
+                          },
+                        ],
+                        staticClass: "ranking-radio",
+                        attrs: { type: "radio", value: "1" },
+                        domProps: {
+                          checked: _vm._q(_vm.state.rankingType, "1"),
+                        },
+                        on: {
+                          change: function ($event) {
+                            return _vm.$set(_vm.state, "rankingType", "1")
+                          },
+                        },
+                      }),
+                      _vm._v("総合\n              "),
+                    ]),
                     _vm._v(" "),
-                    _c("input", {
-                      attrs: { type: "hidden", name: "_token", value: "" },
+                    _c("label", [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.state.rankingType,
+                            expression: "state.rankingType",
+                          },
+                        ],
+                        staticClass: "ranking-radio",
+                        attrs: { type: "radio", value: "2" },
+                        domProps: {
+                          checked: _vm._q(_vm.state.rankingType, "2"),
+                        },
+                        on: {
+                          change: function ($event) {
+                            return _vm.$set(_vm.state, "rankingType", "2")
+                          },
+                        },
+                      }),
+                      _vm._v("今月\n              "),
+                    ]),
+                    _vm._v(" "),
+                    _c("label", [
+                      _c("input", {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.state.rankingType,
+                            expression: "state.rankingType",
+                          },
+                        ],
+                        staticClass: "ranking-radio",
+                        attrs: { type: "radio", value: "3" },
+                        domProps: {
+                          checked: _vm._q(_vm.state.rankingType, "3"),
+                        },
+                        on: {
+                          change: function ($event) {
+                            return _vm.$set(_vm.state, "rankingType", "3")
+                          },
+                        },
+                      }),
+                      _vm._v("今週\n              "),
+                    ]),
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "div",
+                    { staticClass: "home_quiz__ranking-chart" },
+                    [
+                      _c("bar-chart", {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.state.rankingType === "1",
+                            expression: "state.rankingType === '1'",
+                          },
+                        ],
+                        ref: "totalChart",
+                        attrs: { chartData: _vm.state.total },
+                      }),
+                      _vm._v(" "),
+                      _c("bar-chart", {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.state.rankingType === "2",
+                            expression: "state.rankingType === '2'",
+                          },
+                        ],
+                        ref: "monthChart",
+                        attrs: { chartData: _vm.state.month },
+                      }),
+                      _vm._v(" "),
+                      _c("bar-chart", {
+                        directives: [
+                          {
+                            name: "show",
+                            rawName: "v-show",
+                            value: _vm.state.rankingType === "3",
+                            expression: "state.rankingType === '3'",
+                          },
+                        ],
+                        ref: "weekChart",
+                        attrs: { chartData: _vm.state.week },
+                      }),
+                    ],
+                    1
+                  ),
+                ]),
+                _vm._v(" "),
+                _c(
+                  "section",
+                  { staticClass: "home__notice" },
+                  [
+                    _vm._m(4),
+                    _vm._v(" "),
+                    _vm._l(_vm.state.information, function (info, index) {
+                      return _c("dl", { key: index }, [
+                        _c("dt", [_vm._v(_vm._s(info.created_at))]),
+                        _vm._v(" "),
+                        _c("dd", [_vm._v(_vm._s(info.information))]),
+                      ])
                     }),
                   ],
                   2
                 ),
               ]),
               _vm._v(" "),
-              _c("section", { staticClass: "home-quiz__ranking" }, [
-                _vm._m(3),
-                _vm._v(" "),
-                _vm._m(4),
-                _vm._v(" "),
-                _c(
-                  "div",
-                  { staticClass: "home_quiz__ranking-chart" },
-                  [_c("bar-chart")],
-                  1
-                ),
-              ]),
-              _vm._v(" "),
-              _c(
-                "section",
-                { staticClass: "home__notice" },
-                [
-                  _vm._m(5),
-                  _vm._v(" "),
-                  _vm._l(_vm.state.information, function (info, index) {
-                    return _c("dl", { key: index }, [
-                      _c("dt", [_vm._v(_vm._s(info.created_at))]),
-                      _vm._v(" "),
-                      _c("dd", [_vm._v(_vm._s(info.information))]),
-                    ])
-                  }),
-                ],
-                2
-              ),
-            ]),
-            _vm._v(" "),
-            _c("the-sidebar"),
-          ],
-          1
-        ),
-      ]),
-    ]),
+              _c("the-sidebar"),
+            ],
+            1
+          ),
+        ]),
+        _vm._v(" "),
+        _c("notifications"),
+      ],
+      1
+    ),
   ])
 }
 var staticRenderFns = [
@@ -41689,7 +41794,7 @@ var staticRenderFns = [
       _vm._v(" "),
       _c("p", [
         _vm._v(
-          "\n              4 Answers\n              Quizとはビジネスマナーから一般常識に至るまで様々なクイズを4択で出題するWEBアプリです。\n            "
+          "4 Answers Quizとはビジネスマナーから一般常識に至るまで様々なクイズを4択で出題するWEBアプリです。"
         ),
       ]),
       _vm._v(" "),
@@ -41714,33 +41819,11 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", {}, [
+    return _c("div", [
       _vm._v("\n                全項目チェック\n                "),
-      _c(
-        "button",
-        {
-          attrs: {
-            type: "button",
-            name: "check_all",
-            id: "check-all",
-            value: "1",
-          },
-        },
-        [_vm._v("\n                  ON\n                ")]
-      ),
+      _c("button", { attrs: { type: "button" } }, [_vm._v("ON")]),
       _vm._v(" "),
-      _c(
-        "button",
-        {
-          attrs: {
-            type: "button",
-            name: "check_all_off",
-            id: "check-all-off",
-            value: "1",
-          },
-        },
-        [_vm._v("\n                  OFF\n                ")]
-      ),
+      _c("button", { attrs: { type: "button" } }, [_vm._v("OFF")]),
     ])
   },
   function () {
@@ -41753,41 +41836,6 @@ var staticRenderFns = [
         attrs: { src: "/images/graph-icon.png" },
       }),
       _vm._v("ランキング\n            "),
-    ])
-  },
-  function () {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", [
-      _c("label", [
-        _c("input", {
-          staticClass: "ranking-radio",
-          attrs: {
-            type: "radio",
-            name: "ranking-radio",
-            value: "1",
-            checked: "",
-          },
-        }),
-        _vm._v("総合\n              "),
-      ]),
-      _vm._v(" "),
-      _c("label", [
-        _c("input", {
-          staticClass: "ranking-radio",
-          attrs: { type: "radio", name: "ranking-radio", value: "2" },
-        }),
-        _vm._v("今月\n              "),
-      ]),
-      _vm._v(" "),
-      _c("label", [
-        _c("input", {
-          staticClass: "ranking-radio",
-          attrs: { type: "radio", name: "ranking-radio", value: "3" },
-        }),
-        _vm._v("今週\n              "),
-      ]),
     ])
   },
   function () {
