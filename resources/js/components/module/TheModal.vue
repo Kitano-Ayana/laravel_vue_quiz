@@ -22,6 +22,7 @@
               name="correctRatio"
               :value="correctPercentageObject['correctScore'] * 10"
             />
+            <input type="hidden" name="_token" :value="csrf" />
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-primary" @click="quizFinish">
@@ -60,6 +61,9 @@ export default {
         datasets: [],
       },
     });
+    const csrf = ref(
+      document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+    );
 
     const render = () => {
       state.chartData.datasets = [
@@ -75,11 +79,12 @@ export default {
     };
 
     const quizFinish = () => {
-      location.href = "/";
+      document.querySelector("#finish-form").submit();
     };
 
     return {
       state,
+      csrf,
       render,
       quizFinish,
     };

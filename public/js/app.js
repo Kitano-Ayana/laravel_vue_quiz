@@ -8335,6 +8335,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -8358,6 +8359,7 @@ __webpack_require__.r(__webpack_exports__);
         datasets: []
       }
     });
+    var csrf = Object(_vue_composition_api__WEBPACK_IMPORTED_MODULE_0__["ref"])(document.querySelector('meta[name="csrf-token"]').getAttribute("content"));
 
     var render = function render() {
       state.chartData.datasets = [{
@@ -8368,11 +8370,12 @@ __webpack_require__.r(__webpack_exports__);
     };
 
     var quizFinish = function quizFinish() {
-      location.href = "/";
+      document.querySelector("#finish-form").submit();
     };
 
     return {
       state: state,
+      csrf: csrf,
       render: render,
       quizFinish: quizFinish
     };
@@ -59012,6 +59015,11 @@ var render = function () {
                     domProps: {
                       value: _vm.correctPercentageObject["correctScore"] * 10,
                     },
+                  }),
+                  _vm._v(" "),
+                  _c("input", {
+                    attrs: { type: "hidden", name: "_token" },
+                    domProps: { value: _vm.csrf },
                   }),
                 ],
                 1
