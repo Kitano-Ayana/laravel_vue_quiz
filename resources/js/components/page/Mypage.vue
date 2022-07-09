@@ -1,7 +1,4 @@
 <template>
-  <div>
-    <main>
-      <div class="container">
         <div class="row">
           <article class="col-sm-8">
             <section>
@@ -21,10 +18,20 @@
 </template>
 
 <script>
+import { onMounted, reactive } from "@vue/composition-api";
 import TheSidebar from "../layout/TheSidebar";
+
 export default {
   components: {
-    TheSidebar
+    TheSidebar,
   },
+
+  setup(props, context) {
+    onMounted(() => {
+      context.root.$http.get("/api/user").then((response) => {
+        console.log(response.data);
+      });
+    });
+  }
 };
 </script>

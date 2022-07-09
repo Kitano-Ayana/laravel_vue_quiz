@@ -9,7 +9,7 @@
     
     <meta name="csrf-token" content="{{ csrf_token() }}"> 
 
-
+    <meta name="api-token" content="{{ session()->get('api_token') ?? '' }}">
     <title>4 Answers Quiz 4択クイズ&クイズ徹底解説</title>
   </head>
   <body>

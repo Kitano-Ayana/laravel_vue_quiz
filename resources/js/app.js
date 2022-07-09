@@ -10,6 +10,12 @@ import 'bootstrap';
 
 Vue.prototype.$http = axios;
 
+axios.defaults.headers.common['Authorization'] = "Bearer " + document
+  .querySelector('meta[name="api-token"]')
+  .getAttribute("content");
+
+Vue.prototype.$http = axios;
+
 Vue.use(VueCompositionAPI)
 Vue.use(VueSocialSharing);
 
